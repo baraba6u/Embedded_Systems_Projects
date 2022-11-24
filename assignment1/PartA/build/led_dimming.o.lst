@@ -1,0 +1,312 @@
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 20, 1
+   6              		.eabi_attribute 21, 1
+   7              		.eabi_attribute 23, 3
+   8              		.eabi_attribute 24, 1
+   9              		.eabi_attribute 25, 1
+  10              		.eabi_attribute 26, 1
+  11              		.eabi_attribute 30, 6
+  12              		.eabi_attribute 34, 1
+  13              		.eabi_attribute 18, 4
+  14              		.file	"led_dimming.c"
+  15              		.text
+  16              	.Ltext0:
+  17              		.cfi_sections	.debug_frame
+  18              		.section	.text.main,"ax",%progbits
+  19              		.align	1
+  20              		.global	main
+  21              		.syntax unified
+  22              		.thumb
+  23              		.thumb_func
+  25              	main:
+  26              	.LFB138:
+  27              		.file 1 "led_dimming.c"
+   1:led_dimming.c **** #include <xmc_gpio.h>
+   2:led_dimming.c **** #include <xmc_common.h>
+   3:led_dimming.c **** 
+   4:led_dimming.c **** void initCCU4(void);
+   5:led_dimming.c **** void connectLED(void);
+   6:led_dimming.c **** 
+   7:led_dimming.c **** int main(void) {
+  28              		.loc 1 7 16
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 1, uses_anonymous_args = 0
+  32 0000 80B5     		push	{r7, lr}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 8
+  35              		.cfi_offset 7, -8
+  36              		.cfi_offset 14, -4
+  37 0002 00AF     		add	r7, sp, #0
+  38              	.LCFI1:
+  39              		.cfi_def_cfa_register 7
+   8:led_dimming.c **** 
+   9:led_dimming.c ****   initCCU4();
+  40              		.loc 1 9 3
+  41 0004 FFF7FEFF 		bl	initCCU4
+  42              	.L2:
+  10:led_dimming.c ****   while(1);
+  43              		.loc 1 10 8 discriminator 1
+  44 0008 FEE7     		b	.L2
+  45              		.cfi_endproc
+  46              	.LFE138:
+  48              		.section	.text.initCCU4,"ax",%progbits
+  49              		.align	1
+  50              		.global	initCCU4
+  51              		.syntax unified
+  52              		.thumb
+  53              		.thumb_func
+  55              	initCCU4:
+  56              	.LFB139:
+  11:led_dimming.c **** 
+  12:led_dimming.c ****   /*
+  13:led_dimming.c ****   const XMC_GPIO_CONFIG_t LED_config = \
+  14:led_dimming.c ****         {.mode=XMC_GPIO_MODE_OUTPUT_PUSH_PULL,\
+  15:led_dimming.c ****          .output_level=XMC_GPIO_OUTPUT_LEVEL_LOW,\
+  16:led_dimming.c ****          .output_strength=XMC_GPIO_OUTPUT_STRENGTH_STRONG_SHARP_EDGE};
+  17:led_dimming.c **** 
+  18:led_dimming.c ****   XMC_GPIO_Init(XMC_GPIO_PORT1, 0, &LED_config);
+  19:led_dimming.c **** 
+  20:led_dimming.c ****   while(1) {
+  21:led_dimming.c ****     for(int32_t waiter=(1<<20); waiter >= 0; waiter--);
+  22:led_dimming.c ****     XMC_GPIO_ToggleOutput(XMC_GPIO_PORT1, 0);
+  23:led_dimming.c ****   }
+  24:led_dimming.c ****   */
+  25:led_dimming.c ****   return 0;
+  26:led_dimming.c **** }
+  27:led_dimming.c **** 
+  28:led_dimming.c **** 
+  29:led_dimming.c **** 
+  30:led_dimming.c **** void initCCU4(){
+  57              		.loc 1 30 16
+  58              		.cfi_startproc
+  59              		@ args = 0, pretend = 0, frame = 0
+  60              		@ frame_needed = 1, uses_anonymous_args = 0
+  61 0000 80B5     		push	{r7, lr}
+  62              	.LCFI2:
+  63              		.cfi_def_cfa_offset 8
+  64              		.cfi_offset 7, -8
+  65              		.cfi_offset 14, -4
+  66 0002 00AF     		add	r7, sp, #0
+  67              	.LCFI3:
+  68              		.cfi_def_cfa_register 7
+  31:led_dimming.c ****   //step1 : CCU4 is already reset
+  32:led_dimming.c **** 
+  33:led_dimming.c ****   //step2: release reset of CCU4 via specific SCU(system control unit) bitfield on PRCLR0/1 registe
+  34:led_dimming.c ****   // SCU base address =0x5000_4000, + offset 0x414
+  35:led_dimming.c ****   // *(0x50004414) = 0b100;
+  36:led_dimming.c ****   // check XMC4500.h 
+  37:led_dimming.c ****   //SCU_RESET_TypeDef => used as SCU_RESET 
+  38:led_dimming.c ****   // mask = reset mask
+  39:led_dimming.c ****   SCU_RESET->PRCLR0 = SCU_RESET_PRCLR0_CCU40RS_Msk;  
+  69              		.loc 1 39 12
+  70 0004 114B     		ldr	r3, .L4
+  71              		.loc 1 39 21
+  72 0006 0422     		movs	r2, #4
+  73 0008 5A61     		str	r2, [r3, #20]
+  40:led_dimming.c **** 
+  41:led_dimming.c ****   // if decrease clk val -> can see led blinking
+  42:led_dimming.c **** 
+  43:led_dimming.c ****   //step3 : enable ccu4 clock via scu register clkset
+  44:led_dimming.c ****   SCU_CLK->CLKSET = SCU_CLK_CLKSET_CCUCEN_Msk;        //step3
+  74              		.loc 1 44 10
+  75 000a 114B     		ldr	r3, .L4+4
+  76              		.loc 1 44 19
+  77 000c 1022     		movs	r2, #16
+  78 000e 5A60     		str	r2, [r3, #4]
+  45:led_dimming.c ****   CCU40->GIDLC = CCU4_GIDLC_SPRB_Msk;                 //step4
+  79              		.loc 1 45 8
+  80 0010 104B     		ldr	r3, .L4+8
+  81              		.loc 1 45 16
+  82 0012 4FF48072 		mov	r2, #256
+  83 0016 DA60     		str	r2, [r3, #12]
+  46:led_dimming.c ****   //step5 GCTRL ignorable
+  47:led_dimming.c **** 
+  48:led_dimming.c ****   //step6: configure registers needed for Timer Slice
+  49:led_dimming.c ****   // interupt, service x needed
+  50:led_dimming.c ****   // need compare, period
+  51:led_dimming.c ****   // cc42 - control registers, 
+  52:led_dimming.c ****   // use shadow
+  53:led_dimming.c ****   // period shadow, compare shadow
+  54:led_dimming.c ****   CCU40_CC42->PSC = 0b0111; 
+  84              		.loc 1 54 13
+  85 0018 0F4B     		ldr	r3, .L4+12
+  86              		.loc 1 54 19
+  87 001a 0722     		movs	r2, #7
+  88 001c 5A62     		str	r2, [r3, #36]
+  55:led_dimming.c **** 
+  56:led_dimming.c ****   CCU40_CC42->PRS = 0xFFFF;                      
+  89              		.loc 1 56 13
+  90 001e 0E4B     		ldr	r3, .L4+12
+  91              		.loc 1 56 19
+  92 0020 4FF6FF72 		movw	r2, #65535
+  93 0024 5A63     		str	r2, [r3, #52]
+  57:led_dimming.c ****   CCU40_CC42->CRS = (1) * 0xFFFF;
+  94              		.loc 1 57 13
+  95 0026 0C4B     		ldr	r3, .L4+12
+  96              		.loc 1 57 19
+  97 0028 4FF6FF72 		movw	r2, #65535
+  98 002c DA63     		str	r2, [r3, #60]
+  58:led_dimming.c **** 
+  59:led_dimming.c ****   //interrupt generation possible
+  60:led_dimming.c **** 
+  61:led_dimming.c ****   //step7 not necessary
+  62:led_dimming.c ****   CCU40->GCSS = CCU4_GCSS_S2SE_Msk;
+  99              		.loc 1 62 8
+ 100 002e 094B     		ldr	r3, .L4+8
+ 101              		.loc 1 62 15
+ 102 0030 4FF48072 		mov	r2, #256
+ 103 0034 1A61     		str	r2, [r3, #16]
+  63:led_dimming.c ****   
+  64:led_dimming.c ****   // finished pwm generation
+  65:led_dimming.c ****   // call led before starting
+  66:led_dimming.c **** 
+  67:led_dimming.c **** 
+  68:led_dimming.c ****   connectLED();
+ 104              		.loc 1 68 3
+ 105 0036 FFF7FEFF 		bl	connectLED
+  69:led_dimming.c ****   //step7 not necessary
+  70:led_dimming.c ****   // step8: remove cc42 from idle mod
+  71:led_dimming.c ****   CCU40->GIDLC = CCU4_GIDLC_CS2I_Msk;                 //step8
+ 106              		.loc 1 71 8
+ 107 003a 064B     		ldr	r3, .L4+8
+ 108              		.loc 1 71 16
+ 109 003c 0422     		movs	r2, #4
+ 110 003e DA60     		str	r2, [r3, #12]
+  72:led_dimming.c ****   // step 9: start timer slice, use just tcset
+  73:led_dimming.c ****   CCU40_CC42->TCSET = CCU4_CC4_TCSET_TRBS_Msk;        //step9
+ 111              		.loc 1 73 13
+ 112 0040 054B     		ldr	r3, .L4+12
+ 113              		.loc 1 73 21
+ 114 0042 0122     		movs	r2, #1
+ 115 0044 DA60     		str	r2, [r3, #12]
+  74:led_dimming.c **** }
+ 116              		.loc 1 74 1
+ 117 0046 00BF     		nop
+ 118 0048 80BD     		pop	{r7, pc}
+ 119              	.L5:
+ 120 004a 00BF     		.align	2
+ 121              	.L4:
+ 122 004c 00440050 		.word	1342194688
+ 123 0050 00460050 		.word	1342195200
+ 124 0054 00C00040 		.word	1073790976
+ 125 0058 00C30040 		.word	1073791744
+ 126              		.cfi_endproc
+ 127              	.LFE139:
+ 129              		.section	.text.connectLED,"ax",%progbits
+ 130              		.align	1
+ 131              		.global	connectLED
+ 132              		.syntax unified
+ 133              		.thumb
+ 134              		.thumb_func
+ 136              	connectLED:
+ 137              	.LFB140:
+  75:led_dimming.c **** 
+  76:led_dimming.c **** void connectLED(){
+ 138              		.loc 1 76 18
+ 139              		.cfi_startproc
+ 140              		@ args = 0, pretend = 0, frame = 0
+ 141              		@ frame_needed = 1, uses_anonymous_args = 0
+ 142              		@ link register save eliminated.
+ 143 0000 80B4     		push	{r7}
+ 144              	.LCFI4:
+ 145              		.cfi_def_cfa_offset 4
+ 146              		.cfi_offset 7, -4
+ 147 0002 00AF     		add	r7, sp, #0
+ 148              	.LCFI5:
+ 149              		.cfi_def_cfa_register 7
+  77:led_dimming.c ****   static const uint8_t PP_ALT3 = 0b10011;
+  78:led_dimming.c ****   PORT1->IOCR0 = (PORT1->IOCR0 & ~PORT1_IOCR0_PC1_Msk) | (PP_ALT3 << PORT1_IOCR0_PC1_Pos);
+ 150              		.loc 1 78 24
+ 151 0004 074B     		ldr	r3, .L7
+ 152 0006 1B69     		ldr	r3, [r3, #16]
+ 153              		.loc 1 78 32
+ 154 0008 23F47843 		bic	r3, r3, #63488
+ 155              		.loc 1 78 67
+ 156 000c 064A     		ldr	r2, .L7+4
+ 157 000e 1278     		ldrb	r2, [r2]	@ zero_extendqisi2
+ 158 0010 D202     		lsls	r2, r2, #11
+ 159 0012 1146     		mov	r1, r2
+ 160              		.loc 1 78 8
+ 161 0014 034A     		ldr	r2, .L7
+ 162              		.loc 1 78 56
+ 163 0016 0B43     		orrs	r3, r3, r1
+ 164              		.loc 1 78 16
+ 165 0018 1361     		str	r3, [r2, #16]
+  79:led_dimming.c **** }
+ 166              		.loc 1 79 1
+ 167 001a 00BF     		nop
+ 168 001c BD46     		mov	sp, r7
+ 169              	.LCFI6:
+ 170              		.cfi_def_cfa_register 13
+ 171              		@ sp needed
+ 172 001e 5DF8047B 		ldr	r7, [sp], #4
+ 173              	.LCFI7:
+ 174              		.cfi_restore 7
+ 175              		.cfi_def_cfa_offset 0
+ 176 0022 7047     		bx	lr
+ 177              	.L8:
+ 178              		.align	2
+ 179              	.L7:
+ 180 0024 00810248 		.word	1208123648
+ 181 0028 00000000 		.word	PP_ALT3.0
+ 182              		.cfi_endproc
+ 183              	.LFE140:
+ 185              		.section	.rodata
+ 188              	PP_ALT3.0:
+ 189 0000 13       		.byte	19
+ 190              		.text
+ 191              	.Letext0:
+ 192              		.file 2 "/opt/gcc-arm-none-eabi/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/include/machine/_defa
+ 193              		.file 3 "/opt/gcc-arm-none-eabi/gcc-arm-none-eabi-10.3-2021.10/arm-none-eabi/include/sys/_stdint.h
+ 194              		.file 4 "/opt/XMClib/XMC_Peripheral_Library_v2.1.16/CMSIS/Infineon/XMC4500_series/Include/XMC4500.
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 led_dimming.c
+     /tmp/cc5KGQO7.s:19     .text.main:0000000000000000 $t
+     /tmp/cc5KGQO7.s:25     .text.main:0000000000000000 main
+     /tmp/cc5KGQO7.s:55     .text.initCCU4:0000000000000000 initCCU4
+     /tmp/cc5KGQO7.s:49     .text.initCCU4:0000000000000000 $t
+     /tmp/cc5KGQO7.s:136    .text.connectLED:0000000000000000 connectLED
+     /tmp/cc5KGQO7.s:122    .text.initCCU4:000000000000004c $d
+     /tmp/cc5KGQO7.s:130    .text.connectLED:0000000000000000 $t
+     /tmp/cc5KGQO7.s:180    .text.connectLED:0000000000000024 $d
+     /tmp/cc5KGQO7.s:188    .rodata:0000000000000000 PP_ALT3.0
+                           .group:0000000000000000 wm4.0.467689a90594456bf46c01d2d8793c7f
+                           .group:0000000000000000 wm4.stddef.h.39.27677723d43e5b5a7afdf8d798429f1d
+                           .group:0000000000000000 wm4._newlib_version.h.4.bfdf54b0af045d4a71376ae00f63a22c
+                           .group:0000000000000000 wm4.features.h.33.5bd1eea2d80518b50f7af0b5ce6750e0
+                           .group:0000000000000000 wm4._default_types.h.15.247e5cd201eca3442cbf5404108c4935
+                           .group:0000000000000000 wm4._intsup.h.10.48bafbb683905c4daa4565a85aeeb264
+                           .group:0000000000000000 wm4._stdint.h.10.c24fa3af3bc1706662bb5593a907e841
+                           .group:0000000000000000 wm4.stdint.h.23.d53047a68f4a85177f80b422d52785ed
+                           .group:0000000000000000 wm4.stdbool.h.29.07dce69c3b78884144b7f7bd19483461
+                           .group:0000000000000000 wm4.newlib.h.8.7cb3972cd43265932d4782d5eb589854
+                           .group:0000000000000000 wm4.ieeefp.h.77.c88535c35f465c05b101960cf0179075
+                           .group:0000000000000000 wm4.config.h.224.c701144a7b0518c6ee9b9b5465b79f81
+                           .group:0000000000000000 wm4._ansi.h.31.de524f58584151836e90d8620a16f8e8
+                           .group:0000000000000000 wm4._types.h.20.dd0d04dca3800a0d2a6129b87f3adbb2
+                           .group:0000000000000000 wm4.stddef.h.155.3588ebfdd1e8c7ede80509bb9c3b8009
+                           .group:0000000000000000 wm4._types.h.127.34941de1b2539d59d5cac00e0dd27a45
+                           .group:0000000000000000 wm4.reent.h.17.e292bf8b0bec6c96e131a54347145a30
+                           .group:0000000000000000 wm4.lock.h.2.1461d1fff82dffe8bfddc23307f6484f
+                           .group:0000000000000000 wm4.reent.h.77.dcd6129ff07fe81bd5636db29abe53b2
+                           .group:0000000000000000 wm4.cdefs.h.49.a54b2d5c07711bc7320a3fea9f12cb56
+                           .group:0000000000000000 wm4.string.h.15.dab3980bf35408a4c507182805e2de3a
+                           .group:0000000000000000 wm4.stddef.h.155.ba788add86a0e365f264484f110c3c29
+                           .group:0000000000000000 wm4.xmc_device.h.61.ba2d082e12f51240746cffdd60d42b81
+                           .group:0000000000000000 wm4.XMC4500.h.55.9aa45b9b5790506b2dcb963e4e7adeaf
+                           .group:0000000000000000 wm4.core_cm4.h.32.6c6eb1c8daeca23ce7ba79c8e8120d52
+                           .group:0000000000000000 wm4.cmsis_gcc.h.26.91b63349961c35637933e4fba51b867b
+                           .group:0000000000000000 wm4.core_cm4.h.172.fdd5a388a160bb6ff767b7d7ee212268
+                           .group:0000000000000000 wm4.system_XMC4500.h.42.99124977c10ca8844a71949adbeabd70
+                           .group:0000000000000000 wm4.XMC4500.h.208.b340195df97f067735c4c769ba59985a
+                           .group:0000000000000000 wm4.xmc_device.h.1460.8860499b404961ffcfbb8d1fefcb2146
+                           .group:0000000000000000 wm4.xmc_common.h.92.3f4336a80569affab05a81145b87c2fc
+                           .group:0000000000000000 wm4.xmc_gpio.h.97.fa6a2e1be6030a75d960293cc3bbbd6b
+                           .group:0000000000000000 wm4.xmc4_gpio_map.h.74.66e9110cf801b78826ef5354da51c32f
+                           .group:0000000000000000 wm4.xmc4_gpio.h.79.ce6c49508b5a7769c66e7e3c21dcdfe4
+
+NO UNDEFINED SYMBOLS
